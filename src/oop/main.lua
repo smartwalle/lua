@@ -15,3 +15,5 @@ s1:setName("s1")
 s1:setBirthday("2002-02-02")
 s1:setNumber(10)
 print(s1:getName(), s1:getBirthday(), s1:getNumber())
+
+print("word")
