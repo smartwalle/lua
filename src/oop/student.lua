@@ -5,6 +5,7 @@
 
 local Human = require("human")
 
+---@class Student : Human
 local Student = Human.new()
 
 function Student:new()

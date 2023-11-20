@@ -3,6 +3,7 @@
 --- DateTime: 2023/11/8 19:54
 ---
 
+---@class Human
 local Human = {}
 
 function Human:new()
