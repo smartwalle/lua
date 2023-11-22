@@ -3,6 +3,30 @@
 --- DateTime: 2023/11/21 12:32
 ---
 
+--- 示例：
+--- local AliasMethod = require("aliasmethod")
+--- local method = AliasMethod.new()
+--- method:add({ id = 1, weight = 20 })
+--- method:add({ id = 2, weight = 20 })
+--- method:add({ id = 3, weight = 60 })
+--- method:prepare()
+---
+--- local result = {}
+--- for _ = 1, 1000, 1 do
+---     local item = method:nextItem()
+---     local count = result[item.id]
+---     if count == nil then
+---         count = 1
+---     else
+---         count = count + 1
+---     end
+---     result[item.id] = count
+--- end
+---
+--- for i, v in pairs(result) do
+---     print(i, v)
+--- end
+
 ---
 --- 别名算法，主要用于随机抽奖、怪物随机产出道具等。
 ---@class AliasMethod
@@ -123,8 +147,8 @@ function AliasMethod:next()
     local index = math.random(1, pLen)
     local value = math.random()
 
-    local coinToss = value < self.probability[index]
-    if coinToss then
+    local coin = value < self.probability[index]
+    if coin then
         return index
     end
     return self.alias[index]
@@ -146,26 +170,3 @@ return {
         return AliasMethod:new()
     end
 }
-
---- local AliasMethod = require("aliasmethod")
---- local method = AliasMethod.new()
---- method:add({ id = 1, weight = 20 })
---- method:add({ id = 2, weight = 20 })
---- method:add({ id = 3, weight = 60 })
---- method:prepare()
----
---- local result = {}
---- for _ = 1, 1000, 1 do
----     local item = method:nextItem()
----     local count = result[item.id]
----     if count == nil then
----         count = 1
----     else
----         count = count + 1
----     end
----     result[item.id] = count
---- end
----
---- for i, v in pairs(result) do
----     print(i, v)
---- end
