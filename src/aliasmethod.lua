@@ -31,16 +31,16 @@
 --- 别名算法，主要用于随机抽奖、怪物随机产出道具等。
 ---@class AliasMethod
 ---@field private alias table @[]int
----@field private probability table @[]float
+---@field private probs table @[]float
 ---@field private items table @[]table{weight=int, ...}
 local AliasMethod = {}
 
-local probability = 1.0
+local kProbability = 1.0
 
 function AliasMethod:new()
     local o = {
         alias = {},
-        probability = {},
+        probs = {},
         items = {},
     }
     setmetatable(o, self)
@@ -77,27 +77,27 @@ function AliasMethod:prepare()
         total = total + v.weight
     end
 
-    local scale = total / probability
+    local scale = total / kProbability
 
-    local values = {}
-    for _, v in pairs(self.items) do
-        table.insert(values, v.weight / scale)
+    local probs = {}
+    for _, item in pairs(self.items) do
+        table.insert(probs, item.weight / scale)
     end
 
-    return self:process(values)
+    return self:process(probs)
 end
 
 ---
 ---@return boolean
 ---@private
-function AliasMethod:process(prob)
-    local pLen = #prob
-    local avg = probability / pLen
+function AliasMethod:process(probs)
+    local pLen = #probs
+    local avg = kProbability / pLen
     local smallList = {}
     local largeList = {}
 
-    for i, v in ipairs(prob) do
-        self.probability[i] = 0
+    for i, v in ipairs(probs) do
+        self.probs[i] = 0
         self.alias[i] = 0
 
         if v >= avg then
@@ -112,12 +112,12 @@ function AliasMethod:process(prob)
         local less = table.remove(smallList, #smallList)
         local more = table.remove(largeList, #largeList)
 
-        self.probability[less] = prob[less] * pLen
+        self.probs[less] = probs[less] * pLen
         self.alias[less] = more
 
-        prob[more] = prob[more] + prob[less] - avg
+        probs[more] = probs[more] + probs[less] - avg
 
-        if prob[more] >= probability / pLen then
+        if probs[more] >= kProbability / pLen then
             table.insert(largeList, more)
         else
             table.insert(smallList, more)
@@ -125,11 +125,11 @@ function AliasMethod:process(prob)
     end
 
     for _, v in pairs(smallList) do
-        self.probability[v] = probability
+        self.probs[v] = kProbability
     end
 
     for _, v in pairs(largeList) do
-        self.probability[v] = probability
+        self.probs[v] = kProbability
     end
 
     return true
@@ -139,7 +139,7 @@ end
 ---@public
 ---@return number index
 function AliasMethod:next()
-    local pLen = #self.probability
+    local pLen = #self.probs
     if pLen == 0 then
         return 0
     end
@@ -147,7 +147,7 @@ function AliasMethod:next()
     local index = math.random(1, pLen)
     local value = math.random()
 
-    local coin = value < self.probability[index]
+    local coin = value < self.probs[index]
     if coin then
         return index
     end
